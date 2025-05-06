@@ -4,6 +4,8 @@ author: "Ingrid M. Wagnon"
 format:
   html:
     number-sections: true
+    markdown:
+      hardline-breaks: true
 ---
 
 Note about the YAML : Very sensitive to spacing and tabulation.
@@ -154,4 +156,35 @@ here("data-raw/dime/sleep/101.csv") |>
 ```{r test 2 sleep}
 here("data-raw/dime/sleep/102.csv") |>
   import_sleep()
+```
+
+# Import DIME data function : Make function more general
+
+Specifically call the package from which the function you are using comes from 
+
+To make sure your code runs smoothly use the function usethis::use_package("library called") in the console which should add the necessary packages to the DESCRIPTION file.
+For tidyverse use : usethis::use_package("tidyverse", type = "Depends")
+
+```{r import_dime function}
+#' Import data from the DIME study dataset.
+#'
+#' @param file_path Path to the CSV file.
+#' @param n Optional parameter that limits the number of rows. Default is 100.
+#'
+#' @returns A data frame.
+#'
+import_dime <- function(file_path, n = 100) {
+  data <- file_path |>
+    readr::read_csv(
+      show_col_types = FALSE,
+      name_repair = snakecase::to_snake_case,
+      n_max = n
+    )
+  return(data)
+}
+```
+
+```{r}
+here("data-raw/dime/sleep/101.csv") |>
+  import_dime()
 ```
