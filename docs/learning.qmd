@@ -173,27 +173,52 @@ For tidyverse use : usethis::use_package("tidyverse", type = "Depends")
 
 The following is supposed to be a code but we technically need to CUT and PASTE into the functions.R file - but I kept it here to see the final product as text.
 
-{r import_dime function}  
-#' Import data from the DIME study dataset.  
-#'  
-#' @param file_path Path to the CSV file.  
-#' @param n Optional parameter that limits the number of rows. Default is 100.  
-#'  
-#' @returns A data frame.  
-#'  
-import_dime <- function(file_path, n = 100) {  
-  data <- file_path |>  
-    readr::read_csv(  
-      show_col_types = FALSE,  
-      name_repair = snakecase::to_snake_case,  
-      n_max = n  
-    )  
-  return(data)  
-}  
+ {r import_dime function}  
+ #' Import data from the DIME study dataset.  
+ #'  
+ #' @param file_path Path to the CSV file.  
+ #' @param n Optional parameter that limits the number of rows. Default is 100.  
+ #'  
+ #' @returns A data frame.  
+ #'  
+ import_dime <- function(file_path, n = 100) {  
+   data <- file_path |>  
+     readr::read_csv(  
+       show_col_types = FALSE,  
+       name_repair = snakecase::to_snake_case,  
+       n_max = n  
+     )  
+   return(data)  
+ }
 
 ```{r}
 here("data-raw/dime/cgm/101.csv") |>
   import_dime()
 here("data-raw/dime/sleep/101.csv") |>
   import_dime()
+```
+
+
+```{r homemade data snake function}
+#' Import data from dime
+#'
+#' @param typedata cmg or sleep.
+#' @param id Patient ID number.
+#' @param n Optional but number of row, default is 100.
+#'
+#' @returns Output data tibble.
+#'
+import_data_snake <- function(typedata, id, n = 100) {
+  datasnake <- here::here(paste0("data-raw/dime/", as.character(typedata), "/", as.character(id), ".csv")) |>
+    readr::read_csv(
+      show_col_types = FALSE,
+      name_repair = snakecase::to_snake_case,
+      n_max = n
+    )
+  return(datasnake)
+}
+```
+
+```{r}
+import_data_snake("sleep", "101", 93)
 ```
