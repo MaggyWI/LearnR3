@@ -110,12 +110,48 @@ import_cgm <- function(file_path) {
 }
 ```
 
-```{r test 1}
+```{r test 1 cgm}
 here("data-raw/dime/cgm/101.csv") |>
   import_cgm()
 ```
 
-```{r}
+```{r test 2 cgm}
 here("data-raw/dime/cgm/102.csv") |>
   import_cgm()
+```
+
+# Exercise : Create sleep function
+
+name <- function(argument1, argument2) {
+    # body of function
+    output <- ... code ....
+    return(output)
+}
+
+```{r create sleep function}
+#' Import one participants SLEEP data from the DIME dataset.
+#'
+#' @param file_path Path to the CGM dataset.
+#'
+#' @returns Outputs a data frame/tibble.
+#'
+import_sleep <- function(file_path) {
+  sleep <- file_path |>
+    read_csv(
+      show_col_types = FALSE,
+      name_repair = to_snake_case,
+      n_max = 101
+    )
+  return(sleep)
+}
+```
+
+```{r test 1 sleep}
+here("data-raw/dime/sleep/101.csv") |>
+  import_sleep()
+```
+
+```{r test 2 sleep}
+here("data-raw/dime/sleep/102.csv") |>
+  import_sleep()
 ```
