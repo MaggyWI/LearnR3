@@ -1,8 +1,12 @@
 ---
 title: "LearnR3"
 author: "Ingrid M. Wagnon"
-format: html
+format:
+  html:
+    number-sections: true
 ---
+
+Note about the YAML : Very sensitive to spacing and tabulation.
 
 ```{r setup}
 library(tidyverse)
@@ -63,7 +67,7 @@ name <- function(argument1, argument2) {
 
 ## Making a function to add numbers
 
-```{r}
+```{r example of adding numbers}
 #' Add two numbers together.
 #'
 #' @param num1 A number here.
@@ -78,4 +82,40 @@ add_numbers <- function(num1, num2) {
 }
 
 add_numbers(1, 2)
+```
+
+## Import 101's cgm data with a function
+
+From how we import our data we create a function
+
+It's good practice to not hard code the use of here() within a function. Instead, it’s good design to give functions a full file path that it can use internally. Then when we use the function, we would use here() with the correct path in the function argument. 
+
+Then we simplify things internally by renaming cgm_101 to simply cgm, since we would like to be able to import other participant CGM data later.
+
+```{r create cgm function}
+#' Import one participants CGM data from the DIME dataset.
+#'
+#' @param file_path Path to the CGM dataset.
+#'
+#' @returns Outputs a data frame/tibble.
+#'
+import_cgm <- function(file_path) {
+  cgm <- file_path |>
+    read_csv(
+      show_col_types = FALSE,
+      name_repair = to_snake_case,
+      n_max = 100
+    )
+  return(cgm)
+}
+```
+
+```{r test 1}
+here("data-raw/dime/cgm/101.csv") |>
+  import_cgm()
+```
+
+```{r}
+here("data-raw/dime/cgm/102.csv") |>
+  import_cgm()
 ```
