@@ -1,16 +1,39 @@
 ---
-title: "Draft Quarto document"
-author: "Your Name"
+title: "LearnR3"
+author: "Ingrid M. Wagnon"
 format: html
 ---
 
-## Header 1
-
 ```{r setup}
-#| include: false
+library(tidyverse)
+library(here)
+library(snakecase)
+library(styler)
 ```
 
-```{r}
-# Code chunk
+
+## Importing Raw Data
+
+Just about GitHub : If you want it private you can add a private argument.
+
+When you load data from a CSV file into R with read_csv(), the function will try to guess what the data types are for each column. Usually it guesses accurately.
+The argument show_col_types = FALSE tells R to just guess and to not give a warning message.
+Otherwise we could explicitly tell read_csv() what the column names and data types are using the argument col_types. This is a very tedious, but often very powerful and useful step depending on the issues your data may have.
+
+The column names are not in a format that we can easily use. For example, the first column is called "Device Timestamp" and the space in the name will make it harder to work with. So, we will need to fix the column names up to follow a common style and that is easier to code with. That style is snake_case that uses _ for spaces and is all lower case.
+The function from snakecase that we want to use in the name_repair argument is the to_snake_case() function. To convert the variable names to snake case, we would add name_repair = to_snake_case to the code
+
+The n_max argument to only load in the first 100 rows
+
+```{r importing cvs}
+cgm_101 <- here("data-raw/dime/cgm/101.csv") |>
+  read_csv(show_col_types = FALSE,
+           name_repair = to_snake_case,
+           n_max = 100)
 ```
+
+
+
+
+
 
