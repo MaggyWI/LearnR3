@@ -26,24 +26,24 @@ The function from snakecase that we want to use in the name_repair argument is t
 
 The n_max argument to only load in the first 100 rows
 
-```{r importing cvs}
+```{r importing csv}
 cgm_101 <- here("data-raw/dime/cgm/101.csv") |>
-  read_csv(show_col_types = FALSE,
-           name_repair = to_snake_case,
-           n_max = 100)
+  read_csv(
+    show_col_types = FALSE,
+    name_repair = to_snake_case,
+    n_max = 100
+  )
 ```
 
 
 # Exercise: Import 101's sleep data
 
-```{r}
+```{r importing csv exercise}
 sleep_101 <- here("data-raw/dime/sleep/101.csv") |>
-  read_csv(show_col_types = FALSE,
-           name_repair = to_snake_case,
-           n_max = 101)
+  read_csv(
+    show_col_types = FALSE,
+    name_repair = to_snake_case,
+    n_max = 101
+  )
 sleep_101
 ```
-
-
-
-
