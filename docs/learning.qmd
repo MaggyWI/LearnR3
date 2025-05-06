@@ -11,9 +11,9 @@ library(snakecase)
 ```
 
 
-## Importing Raw Data
+# Importing Raw Data
 
-# Import CGM
+## Import CGM
 
 Just about GitHub : If you want it private you can add a private argument.
 
@@ -26,6 +26,8 @@ The function from snakecase that we want to use in the name_repair argument is t
 
 The n_max argument to only load in the first 100 rows
 
+If necessary (not shown in this example) you can use col_select = arguments in read_csv() to import only the data you need.
+
 ```{r importing csv}
 cgm_101 <- here("data-raw/dime/cgm/101.csv") |>
   read_csv(
@@ -36,7 +38,7 @@ cgm_101 <- here("data-raw/dime/cgm/101.csv") |>
 ```
 
 
-# Exercise: Import 101's sleep data
+## Exercise: Import 101's sleep data
 
 ```{r importing csv exercise}
 sleep_101 <- here("data-raw/dime/sleep/101.csv") |>
@@ -46,4 +48,34 @@ sleep_101 <- here("data-raw/dime/sleep/101.csv") |>
     n_max = 101
   )
 sleep_101
+```
+
+
+# Creating Functions
+
+Basic structure of a function:
+
+name <- function(argument1, argument2) {
+    # body of function
+    output <- ... code ....
+    return(output)
+}
+
+## Making a function to add numbers
+
+```{r}
+#' Add two numbers together.
+#'
+#' @param num1 A number here.
+#' @param num2 A number here.
+#'
+#' @return Returns the sum of the two numbers.
+#'
+
+add_numbers <- function(num1, num2) {
+  added <- num1 + num2
+  return(added)
+}
+
+add_numbers(1, 2)
 ```
