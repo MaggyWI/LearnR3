@@ -19,6 +19,7 @@ For tidyverse use : usethis::use_package("tidyverse", type = "Depends").
 library(tidyverse)
 library(here)
 library(snakecase)
+library(fs)
 source(here("R/functions.R"))
 ```
 
@@ -221,4 +222,47 @@ import_data_snake <- function(typedata, id, n = 100) {
 
 ```{r}
 import_data_snake("sleep", "101", 93)
+```
+
+
+# Using map
+
+The dir_ls() function takes the path that we want to search, in this case data-raw/dime/cgm and has an argument called glob to tell it what type of files to search for. In our case, we want to search for all CSV files in the data-raw/dime/cgm/ folder. So we will pipe the output of the path to the CGM folder with here() into dir_ls():
+
+```{r}
+cgm_files <- here("data-raw/dime/cgm/") |>
+  dir_ls(glob = "*.csv")
+```
+
+```{r}
+cgm_files
+```
+
+```{r}
+cgm_data <- cgm_files |>
+  map(import_dime)
+```
+
+```{r}
+cgm_data[1:2]
+```
+
+There are two functions that take a list of data frames and convert them into a single data frame. They are called list_rbind() to bind (“stack”) the data frames by rows or list_cbind() to bind (“stack”) the data frames by columns. In our case, we want to bind (stack) by rows, so we will use list_rbind() by piping the output of the map() code we wrote into list_rbind().
+
+```{r}
+cgm_data <- cgm_files |>
+  map(import_dime) |>
+  list_rbind()
+
+cgm_data
+```
+
+list_rbind() has an argument called names_to. This argument lets us create a new column that is based on the name of the list item, which in our case is the file path. This file path also has the participant ID information in it, but it also has the full file path in it too, which isn’t exactly what we want. So we’ll have to fix it later. But first, let’s start with adding this information to the data frame as a new column called file_path_id.
+
+```{r}
+cgm_data <- cgm_files |>
+  map(import_dime) |>
+  list_rbind(names_to = "file_path_id")
+
+cgm_data
 ```
