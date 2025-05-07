@@ -8,6 +8,7 @@ BugReports: https://github.com/MaggyWI/LearnR3/issues
 Imports: 
     fs,
     here,
+    purrr,
     readr,
     snakecase
 Depends: 
