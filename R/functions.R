@@ -87,3 +87,22 @@ clean_cgm <- function(data) {
     dplyr::rename(glucose = historic_glucose_mmol_l)
   return(cleaned)
 }
+
+
+#' Making summary sorting by column
+#'
+#' @param data
+#' @param column
+#' @param functions You can enter them in list(average = mean) for example
+#'
+#' @returns Table
+#'
+summarise_column <- function(data, column, functions) {
+  summarised_column <- data |>
+    dplyr::select(-tidyselect::contains("timestamp"), -tidyselect::contains("datetime")) |>
+    dplyr::group_by(dplyr::pick(-{{ column }})) |>
+    dplyr::summarise(dplyr::across({{ column }}, functions),
+                     .groups = "drop"
+    )
+  return(summarised_column)
+}

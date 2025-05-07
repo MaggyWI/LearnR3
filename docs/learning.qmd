@@ -26,7 +26,7 @@ library(lubridate)
 source(here("R/functions.R"))
 
 cgm_data <- here("data-raw/dime/cgm") |>
-  import_csv_files() |> 
+  import_csv_files() |>
   clean_cgm()
 
 sleep_data <- here("data-raw/dime/sleep") |>
@@ -404,7 +404,7 @@ cgm_data |>
 
 we can use the following:
 
-```{r}
+```{r summarise across}
 cgm_data |>
   summarise(across(glucose, list(mean, median)))
 ```
@@ -412,7 +412,7 @@ cgm_data |>
 You can rename the function by using list(average = mean).  
 You can also specify if you want to remove NA values from calculations: list(mean = \(x) mean(x, na.rm = TRUE))
 
-```{r}
+```{r summarize across with several functions}
 cgm_data |>
   summarise(across(glucose, list(mean = mean, sd = sd, median = median)))
 ```
@@ -425,7 +425,7 @@ The great thing about using across() is that you can also use it with all the ti
 We need to exclude some column we don't want to be summarized or grouped by with select(-contains("argument")), and we can also group by anything except or variable using pick(-the variable) inside the group_by function.
 ending by .groups = "drop" it stops the grouping so R doesnt keep it later.
 
-```{r}
+```{r summarize by group}
 cgm_data |>
   select(-contains("timestamp"), -contains("datetime")) |>
   group_by(pick(-glucose)) |>
@@ -435,6 +435,32 @@ cgm_data |>
 ```
 
 
+So, convert the code we just wrote into a function by following these steps:
+
+<span style="color: blue;"> {r Creating the summarise_column function}  
+ #' Making summary sorting by column  
+ #'  
+ #' @param data   
+ #' @param column   
+ #' @param functions You can enter them in list(average = mean) for example  
+ #'  
+ #' @returns Table  
+ #'  
+ summarise_column <- function(data, column, functions) {  
+   summarised_column <- data |>  
+     dplyr::select(-tidyselect::contains("timestamp"), -tidyselect::contains("datetime")) |>  
+     dplyr::group_by(dplyr::pick(-{{ column }})) |>  
+     dplyr::summarise(dplyr::across({{ column }}, functions),  
+       .groups = "drop"  
+     )  
+   return(summarised_column)  
+ } </span> 
 
 
+```{r}
+cgm_data |>
+  summarise_column(glucose, list(mean = mean, sd = sd))
 
+sleep_data |>
+  summarise_column(seconds, sum)
+```
