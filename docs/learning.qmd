@@ -32,6 +32,9 @@ cgm_data <- here("data-raw/dime/cgm") |>
 sleep_data <- here("data-raw/dime/sleep") |>
   import_csv_files() |>
   clean_sleep()
+
+participant_details <- here("data-raw/dime/participant_details.csv") |>
+  import_dime()
 ```
 
 
@@ -446,3 +449,21 @@ cgm_data |>
 summarise_column(glucose, list(mean = mean, sd = sd))  
 sleep_data |>  
 summarise_column(seconds, sum)</span> 
+
+
+# Pivot Longer
+
+With pivot_longer(), the first argument is the data itself. The other arguments are:  
+cols: The columns to use to convert to long form. The input is a vector made using c() that contains the column names, like you would use in select() (e.g. you can use the select_helpers like starts_with(), or - minus to exclude).  
+names_to: Optional, the default is name. If provided, it will be the name of the newly created column (as a quoted character) that contains the original column names.  
+values_to: Optional, the default is value. Like names_to, sets the name of the new columns.  
+
+pivot_longer() is opposite of pivot_wider()
+
+
+For the participant details we know that the start date is before the end date so we don't care about keeping the column "name" when pivoting as we are just interested by the "value" that we can call "date".
+
+```{r}
+participant_details |>
+  pivot_longer(ends_with("date"), names_to = NULL, values_to = "date")
+```
