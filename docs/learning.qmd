@@ -20,7 +20,18 @@ library(tidyverse)
 library(here)
 library(snakecase)
 library(fs)
+library(purrr)
+library(stringr)
 source(here("R/functions.R"))
+
+
+cgm_data <- here("data-raw/dime/cgm") |>
+  import_csv_files() |>
+  get_participant_id()
+
+sleep_data <- here("data-raw/dime/sleep") |>
+  import_csv_files() |>
+  get_participant_id()
 ```
 
 
@@ -237,55 +248,112 @@ cgm_files
 ```
 
 ```{r map}
-cgm_data <- cgm_files |>
+cgm_data_mapuse <- cgm_files |>
   map(import_dime)
 
-cgm_data[1:2] # this is to import only 2 dataset instead of 101 of them
+cgm_data_mapuse[1:2] # this is to import only 2 dataset instead of 101 of them
 ```
 
 There are two functions that take a list of data frames and convert them into a single data frame. They are called list_rbind() to bind (“stack”) the data frames by rows or list_cbind() to bind (“stack”) the data frames by columns. In our case, we want to bind (stack) by rows, so we will use list_rbind() by piping the output of the map() code we wrote into list_rbind().
 
 ```{r map and list_bind}
-cgm_data <- cgm_files |>
+cgm_data_mapuse <- cgm_files |>
   map(import_dime) |>
   list_rbind()
 
-cgm_data
+cgm_data_mapuse
 ```
 
 list_rbind() has an argument called names_to. This argument lets us create a new column that is based on the name of the list item, which in our case is the file path. This file path also has the participant ID information in it, but it also has the full file path in it too, which isn’t exactly what we want. So we’ll have to fix it later. But first, let’s start with adding this information to the data frame as a new column called file_path_id.
 
 ```{r add names_to}
-cgm_data <- cgm_files |>
+cgm_data_mapuse <- cgm_files |>
   map(import_dime) |>
   list_rbind(names_to = "file_path_id")
 
-cgm_data
+cgm_data_mapuse
 ```
 
 
 ## Convert map to function and use on sleep
 
-{r code function}  
-#' Import the csv files  
-#'  
-#' @param folder_path give the here("folder_path") where to look  
-#'  
-#' @returns tibble or data  
-#'  
-import_csv_files <- function(folder_path) {  
-  files <- folder_path |>  
-    fs::dir_ls(glob = "*.csv")  
-  data <- files |>  
-    purrr::map(import_dime) |>  
-    purrr::list_rbind(names_to = "file_path_id")  
-  return(data)  
-}  
-
+ {r code function}  
+ #' Import the csv files  
+ #'  
+ #' @param folder_path give the here("folder_path") where to look  
+ #'  
+ #' @returns tibble or data  
+ #'  
+ import_csv_files <- function(folder_path) {  
+   files <- folder_path |>  
+     fs::dir_ls(glob = "*.csv")  
+   data <- files |>  
+     purrr::map(import_dime) |>  
+     purrr::list_rbind(names_to = "file_path_id")  
+   return(data)  
+ }  
 
 ```{r try import csv files function}
 here("data-raw/dime/cgm/") |>
   import_csv_files()
 here("data-raw/dime/sleep/") |>
   import_csv_files()
+```
+
+
+# Using Regex for ID
+
+  {r extract ID}  
+  cgm_data |>  
+ mutate(  
+    id = str_extract(  
+      file_path_id,  
+      "[:digit:]+\\.csv$"  
+    ) |>  
+      str_remove("\\.csv$") |>  
+      as.integer(),  
+    .before = file_path_id  
+  ) |>  
+  select(-file_path_id)  
+
+
+## Exercise : Create get ID function
+{ r create get ID function}  
+ 
+ #' Get participant ID as first column  
+ #'  
+ #' @param data   
+ #'  
+ #' @returns table  
+ #'  
+ get_participant_id <- function(data) {  
+ data_with_id <- data |>  
+   dplyr::mutate(  
+     id = stringr::str_extract(  
+       file_path_id,  
+       "[:digit:]+\\.csv$"  
+     ) |>  
+       stringr::str_remove("\\.csv$") |>  
+       as.integer(),  
+     .before = file_path_id  
+   ) |>  
+   select(-file_path_id)  
+   return(data_with_id)  
+ }  
+
+```{r}
+cgm_data
+sleep_data
+```
+
+
+# Working with dates
+
+```{r}
+cgm_data |>
+  mutate(
+    date = as_date(device_timestamp),
+    hour = hour(device_timestamp),
+    .before = device_timestamp
+  )
 ```

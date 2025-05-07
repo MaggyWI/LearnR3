@@ -35,6 +35,26 @@ import_csv_files <- function(folder_path) {
 
 
 
+#' Get participant ID as first column
+#'
+#' @param data
+#'
+#' @returns table
+#'
+get_participant_id <- function(data) {
+  data_with_id <- data |>
+    dplyr::mutate(
+      id = stringr::str_extract(
+        file_path_id,
+        "[:digit:]+\\.csv$"
+      ) |>
+        stringr::str_remove("\\.csv$") |>
+        as.integer(),
+      .before = file_path_id
+    ) |>
+    select(-file_path_id)
+  return(data_with_id)
+}
 
 
 
