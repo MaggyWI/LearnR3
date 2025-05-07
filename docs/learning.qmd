@@ -31,9 +31,7 @@ cgm_data <- here("data-raw/dime/cgm") |>
 
 sleep_data <- here("data-raw/dime/sleep") |>
   import_csv_files() |>
-  get_participant_id() |>
-  rename(datetime = date) |>
-  prepare_dates(datetime)
+  clean_sleep()
 ```
 
 
@@ -342,11 +340,6 @@ here("data-raw/dime/sleep/") |>
    return(data_with_id)  
  }  </span>
 
-```{r verify all is working}
-cgm_data
-sleep_data
-```
-
 
 # Working with dates
 
@@ -381,11 +374,6 @@ In R, NSE is what allows you to use formulas (e.g. y ~ x + x2) in statistical mo
 
 Insert the prepared_dates in the set up and replace the name of the column "date" in sleep data otherwise there is a conflict with 2 columns with the same name.Use rename(new name = old name).
 
-```{r final data output}
-cgm_data
-sleep_data
-```
-
 
 # Using Split-Apply-Combine
 
@@ -404,18 +392,17 @@ cgm_data |>
 
 we can use the following:
 
-```{r summarise across}
-cgm_data |>
-  summarise(across(glucose, list(mean, median)))
-```
+<span style="color: blue;"> {r summarise across}  
+cgm_data |>  
+  summarise(across(glucose, list(mean, median))) </span>
+
 
 You can rename the function by using list(average = mean).  
 You can also specify if you want to remove NA values from calculations: list(mean = \(x) mean(x, na.rm = TRUE))
 
-```{r summarize across with several functions}
-cgm_data |>
-  summarise(across(glucose, list(mean = mean, sd = sd, median = median)))
-```
+<span style="color: blue;"> {r summarize across with several functions}  
+cgm_data |>  
+  summarise(across(glucose, list(mean = mean, sd = sd, median = median)))  </span>
 
 The great thing about using across() is that you can also use it with all the tidyselect functions in the first argument. For instance, if you wanted to only calculate things for columns that are numbers, you can use where(is.numeric) to select all the numeric columns. Or if you had a pattern in your column names, you can use things like starts_with() or ends_with() to select columns that start or end with a certain string.
 
@@ -425,15 +412,13 @@ The great thing about using across() is that you can also use it with all the ti
 We need to exclude some column we don't want to be summarized or grouped by with select(-contains("argument")), and we can also group by anything except or variable using pick(-the variable) inside the group_by function.
 ending by .groups = "drop" it stops the grouping so R doesnt keep it later.
 
-```{r summarize by group}
-cgm_data |>
-  select(-contains("timestamp"), -contains("datetime")) |>
-  group_by(pick(-glucose)) |>
-  summarise(across(glucose, list(mean = mean, sd = sd)),
-    .groups = "drop"
-  )
-```
-
+<span style="color: blue;"> {r summarize by group}  
+cgm_data |>  
+  select(-contains("timestamp"), -contains("datetime")) |>  
+  group_by(pick(-glucose)) |>  
+  summarise(across(glucose, list(mean = mean, sd = sd)),  
+    .groups = "drop"  
+  )</span>
 
 So, convert the code we just wrote into a function by following these steps:
 
@@ -456,11 +441,8 @@ So, convert the code we just wrote into a function by following these steps:
    return(summarised_column)  
  } </span> 
 
-
-```{r}
-cgm_data |>
-  summarise_column(glucose, list(mean = mean, sd = sd))
-
-sleep_data |>
-  summarise_column(seconds, sum)
-```
+<span style="color: blue;"> {r test the summarise function in cgm and sleep}  
+cgm_data |>  
+summarise_column(glucose, list(mean = mean, sd = sd))  
+sleep_data |>  
+summarise_column(seconds, sum)</span> 

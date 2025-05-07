@@ -74,20 +74,6 @@ prepare_dates <- function(data, column) {
 }
 
 
-#' Clean and prepare the CGM data for joining.
-#'
-#' @param data The CGM dataset.
-#'
-#' @returns A cleaner data frame.
-#'
-clean_cgm <- function(data) {
-  cleaned <- data |>
-    get_participant_id() |>
-    prepare_dates(device_timestamp) |>
-    dplyr::rename(glucose = historic_glucose_mmol_l)
-  return(cleaned)
-}
-
 
 #' Making summary sorting by column
 #'
@@ -106,3 +92,36 @@ summarise_column <- function(data, column, functions) {
     )
   return(summarised_column)
 }
+
+
+#' Clean and prepare the CGM data for joining.
+#'
+#' @param data The CGM dataset.
+#'
+#' @returns A cleaner data frame.
+#'
+clean_cgm <- function(data) {
+  cleaned <- data |>
+    get_participant_id() |>
+    prepare_dates(device_timestamp) |>
+    dplyr::rename(glucose = historic_glucose_mmol_l) |>
+    summarise_column(glucose, list(mean = mean, sd = sd))
+  return(cleaned)
+}
+
+
+#' Clean and prepare the SLEEP data for joining.
+#'
+#' @param data The SLEEP dataset.
+#'
+#' @returns A cleaner data frame.
+#'
+clean_sleep <- function(data) {
+  cleaned <- data |>
+    get_participant_id() |>
+    rename(datetime = date) |>
+    summarise_column(seconds, list(sum = sum))
+  return(cleaned)
+}
+
+
