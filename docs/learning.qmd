@@ -22,6 +22,7 @@ library(snakecase)
 library(fs)
 library(purrr)
 library(stringr)
+library(lubridate)
 source(here("R/functions.R"))
 
 cgm_data <- here("data-raw/dime/cgm") |>
@@ -81,11 +82,11 @@ sleep_101
 
 Basic structure of a function:  
 
-name <- function(argument1, argument2) {  
+<span style="color: blue;">name <- function(argument1, argument2) {  
     # body of function  
     output <- ... code ....  
     return(output)  
-}  
+}  </span>
 
 ## Making a function to add numbers
 
@@ -144,11 +145,11 @@ here("data-raw/dime/cgm/102.csv") |>
 
 # Exercise : Create sleep function
 
-name <- function(argument1, argument2) {  
+<span style="color: blue;"> name <- function(argument1, argument2) {  
     # body of function  
     output <- ... code ....  
     return(output)  
-}  
+}  </span>
 
 ```{r create sleep function}
 #' Import one participants SLEEP data from the DIME dataset.
@@ -187,7 +188,7 @@ For tidyverse use : usethis::use_package("tidyverse", type = "Depends")
 
 The following is supposed to be a code but we technically need to CUT and PASTE into the functions.R file - but I kept it here to see the final product as text.
 
- {r import_dime function}  
+ <span style="color: blue;"> {r import_dime function}  
  #' Import data from the DIME study dataset.  
  #'  
  #' @param file_path Path to the CSV file.  
@@ -203,7 +204,7 @@ The following is supposed to be a code but we technically need to CUT and PASTE 
        n_max = n  
      )  
    return(data)  
- }
+ } </span>
 
 ```{r use funciton import dime on cgm and sleep}
 here("data-raw/dime/cgm/101.csv") |>
@@ -279,7 +280,7 @@ cgm_data_mapuse
 
 ## Convert map to function and use on sleep
 
- {r code function}  
+ <span style="color: blue;">{r code function}  
  #' Import the csv files  
  #'  
  #' @param folder_path give the here("folder_path") where to look  
@@ -293,7 +294,7 @@ cgm_data_mapuse
      purrr::map(import_dime) |>  
      purrr::list_rbind(names_to = "file_path_id")  
    return(data)  
- }  
+ }  </span>
 
 ```{r try import csv files function}
 here("data-raw/dime/cgm/") |>
@@ -305,7 +306,7 @@ here("data-raw/dime/sleep/") |>
 
 # Using Regex for ID
 
-  {r extract ID}  
+<span style="color: blue;">  {r extract ID}  
   cgm_data |>  
  mutate(  
     id = str_extract(  
@@ -316,12 +317,11 @@ here("data-raw/dime/sleep/") |>
       as.integer(),  
     .before = file_path_id  
   ) |>  
-  select(-file_path_id)  
+  select(-file_path_id)  </span>
 
 
 ## Exercise : Create get ID function
-{ r create get ID function}  
- 
+<span style="color: blue;">{ r create get ID function}  
  #' Get participant ID as first column  
  #'  
  #' @param data   
@@ -341,7 +341,7 @@ here("data-raw/dime/sleep/") |>
    ) |>  
    select(-file_path_id)  
    return(data_with_id)  
- }  
+ }  </span>
 
 ```{r verify all is working}
 cgm_data
@@ -351,18 +351,18 @@ sleep_data
 
 # Working with dates
 
-{r first how to work with dates}  
+<span style="color: blue;">{r first how to work with dates}  
 cgm_data |>  
   mutate(  
     date = as_date(device_timestamp),  
     hour = hour(device_timestamp),  
     .before = device_timestamp  
-  )  
+  )  </span>
 
 
 In R, NSE is what allows you to use formulas (e.g. y ~ x + x2) in statistical models or allows you to type out select(Gender, BMI) or library(purrr). In “standard evaluation”, these would instead be select("Gender", "BMI") or library("purrr"). So NSE gives flexibility and ease of use for the user (we don’t have to type quotes every time). The simplest way to use NSE in your own functions when using tidyverse packages is to wrap the variable with { } (called “curly-curly”). By wrapping column with { }, we are telling R that we are giving it an unquoted variable and to give that variable to the as_date() function as the name of the column.
 
- {r function for preparing dates}  
+<span style="color: blue;"> {r function for preparing dates}  
  #' Prepare the date columns in DIME CGM and sleep data for joining.   
  #'  
  #' @param data The data that has the datetime column.  
@@ -378,7 +378,7 @@ In R, NSE is what allows you to use formulas (e.g. y ~ x + x2) in statistical mo
        .before = {{column}}  
      )  
    return(prepared_dates)  
- }  
+ }  </span>
 
 Insert the prepared_dates in the set up and replace the name of the column "date" in sleep data otherwise there is a conflict with 2 columns with the same name.Use rename(new name = old name).
 
