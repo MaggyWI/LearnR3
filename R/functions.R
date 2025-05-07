@@ -1,4 +1,3 @@
-
 #' Import data from the DIME study dataset.
 #'
 #' @param file_path Path to the CSV file.
@@ -67,11 +66,24 @@ get_participant_id <- function(data) {
 prepare_dates <- function(data, column) {
   prepared_dates <- data |>
     dplyr::mutate(
-      date = lubridate::as_date({{column}}),
-      hour = lubridate::hour({{column}}),
-      .before = {{column}}
+      date = lubridate::as_date({{ column }}),
+      hour = lubridate::hour({{ column }}),
+      .before = {{ column }}
     )
   return(prepared_dates)
 }
 
 
+#' Clean and prepare the CGM data for joining.
+#'
+#' @param data The CGM dataset.
+#'
+#' @returns A cleaner data frame.
+#'
+clean_cgm <- function(data) {
+  cleaned <- data |>
+    get_participant_id() |>
+    prepare_dates(device_timestamp) |>
+    dplyr::rename(glucose = historic_glucose_mmol_l)
+  return(cleaned)
+}

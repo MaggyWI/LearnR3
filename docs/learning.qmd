@@ -26,9 +26,8 @@ library(lubridate)
 source(here("R/functions.R"))
 
 cgm_data <- here("data-raw/dime/cgm") |>
-  import_csv_files() |>
-  get_participant_id() |>
-  prepare_dates(device_timestamp)
+  import_csv_files() |> 
+  clean_cgm()
 
 sleep_data <- here("data-raw/dime/sleep") |>
   import_csv_files() |>
@@ -382,7 +381,60 @@ In R, NSE is what allows you to use formulas (e.g. y ~ x + x2) in statistical mo
 
 Insert the prepared_dates in the set up and replace the name of the column "date" in sleep data otherwise there is a conflict with 2 columns with the same name.Use rename(new name = old name).
 
-```{r}
+```{r final data output}
 cgm_data
 sleep_data
 ```
+
+
+# Using Split-Apply-Combine
+
+## Summarizing with across()
+
+The function across() works a bit like map() does. You give it a vector of columns to work on and a list of functions to apply to those columns.  
+Unlike map(), which is a more general function, across() is specifically designed to work within dplyr verbs like mutate() or summarise() and within the context of a data frame.
+The first argument for across() is the columns you want to work on. You can use c() to combine multiple columns together. The second argument is the function you want to apply to those columns. You can use list() to combine multiple functions together.
+
+<span style="color: blue;">Instead of something like this:
+cgm_data |>  
+  summarise(  
+    mean_glucose = mean(historic_glucose_mmol_l),  
+    sd_glucose = sd(historic_glucose_mmol_l)  
+  )  </span>
+
+we can use the following:
+
+```{r}
+cgm_data |>
+  summarise(across(glucose, list(mean, median)))
+```
+
+You can rename the function by using list(average = mean).  
+You can also specify if you want to remove NA values from calculations: list(mean = \(x) mean(x, na.rm = TRUE))
+
+```{r}
+cgm_data |>
+  summarise(across(glucose, list(mean = mean, sd = sd, median = median)))
+```
+
+The great thing about using across() is that you can also use it with all the tidyselect functions in the first argument. For instance, if you wanted to only calculate things for columns that are numbers, you can use where(is.numeric) to select all the numeric columns. Or if you had a pattern in your column names, you can use things like starts_with() or ends_with() to select columns that start or end with a certain string.
+
+
+## Summarizing by groups
+
+We need to exclude some column we don't want to be summarized or grouped by with select(-contains("argument")), and we can also group by anything except or variable using pick(-the variable) inside the group_by function.
+ending by .groups = "drop" it stops the grouping so R doesnt keep it later.
+
+```{r}
+cgm_data |>
+  select(-contains("timestamp"), -contains("datetime")) |>
+  group_by(pick(-glucose)) |>
+  summarise(across(glucose, list(mean = mean, sd = sd)),
+    .groups = "drop"
+  )
+```
+
+
+
+
+
