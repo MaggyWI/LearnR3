@@ -36,6 +36,10 @@ sleep_data <- here("data-raw/dime/sleep") |>
 participant_details <- here("data-raw/dime/participant_details.csv") |>
   import_dime() |>
   clean_participant_details()
+
+dime_data <- participant_details |>
+  full_join(cgm_data) |>
+  full_join(sleep_data)
 ```
 
 
@@ -524,3 +528,23 @@ sleep_data |>
    wider <- data |> tidyr::pivot_wider(names_from = sleep_type, values_from = seconds_sum,    names_prefix = "seconds_")
    return(wider)
  } </span>
+ 
+ 
+ # Joining data together
+ 
+ ## Joining datasets
+ 
+<span style="color: blue;">{r type of join}  
+participant_details |>  
+  left_join(cgm_data)  
+  
+participant_details |>  
+  right_join(cgm_data)  
+  
+participant_details |>   
+  full_join(cgm_data)  </span>
+  
+<span style="color: blue;">{r final joining}  
+dime_data <- participant_details |>   
+  full_join(cgm_data) |>   
+  full_join(sleep_data)  </span>

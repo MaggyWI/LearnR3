@@ -5,12 +5,11 @@
 #'
 #' @returns A data frame.
 #'
-import_dime <- function(file_path, n = 100) {
+import_dime <- function(file_path) {
   data <- file_path |>
     readr::read_csv(
       show_col_types = FALSE,
       name_repair = snakecase::to_snake_case,
-      n_max = n
     )
   return(data)
 }
@@ -88,7 +87,7 @@ summarise_column <- function(data, column, functions) {
     dplyr::select(-tidyselect::contains("timestamp"), -tidyselect::contains("datetime")) |>
     dplyr::group_by(dplyr::pick(-{{ column }})) |>
     dplyr::summarise(dplyr::across({{ column }}, functions),
-                     .groups = "drop"
+      .groups = "drop"
     )
   return(summarised_column)
 }
