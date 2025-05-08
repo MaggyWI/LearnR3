@@ -40,6 +40,8 @@ participant_details <- here("data-raw/dime/participant_details.csv") |>
 dime_data <- participant_details |>
   full_join(cgm_data) |>
   full_join(sleep_data)
+
+write_csv(dime_data, here("data/dime.csv"))
 ```
 
 
@@ -530,21 +532,22 @@ sleep_data |>
  } </span>
  
  
- # Joining data together
- 
- ## Joining datasets
+# Joining data together
  
 <span style="color: blue;">{r type of join}  
 participant_details |>  
-  left_join(cgm_data)  
+  left_join(cgm_data)  </span>
   
-participant_details |>  
-  right_join(cgm_data)  
+<span style="color: blue;">participant_details |>  
+  right_join(cgm_data)  </span>
   
-participant_details |>   
+<span style="color: blue;">participant_details |>   
   full_join(cgm_data)  </span>
   
 <span style="color: blue;">{r final joining}  
 dime_data <- participant_details |>   
   full_join(cgm_data) |>   
   full_join(sleep_data)  </span>
+
+The last step… saving the dataset to the data/ folder! That way you communicate to yourself (and others) that this is the dataset to use, not the data in the data-raw/ folder. So in the last line of the setup code chunk save it as a CSV file with write_csv().
+Since we don’t want to track this file in Git, let’s end this with ignoring it by running in the Console.
