@@ -34,7 +34,8 @@ sleep_data <- here("data-raw/dime/sleep") |>
   clean_sleep()
 
 participant_details <- here("data-raw/dime/participant_details.csv") |>
-  import_dime()
+  import_dime() |>
+  clean_participant_details()
 ```
 
 
@@ -461,9 +462,38 @@ values_to: Optional, the default is value. Like names_to, sets the name of the n
 pivot_longer() is opposite of pivot_wider()
 
 
-For the participant details we know that the start date is before the end date so we don't care about keeping the column "name" when pivoting as we are just interested by the "value" that we can call "date".
+For the participant details we know that the start date is before the end date so we don't care about keeping the column "name" (start date / end date) when pivoting as we are just interested by the "value" that we can call "date".
 
-```{r}
-participant_details |>
-  pivot_longer(ends_with("date"), names_to = NULL, values_to = "date")
-```
+The participant_details data has only the date for the first day and for the last day. So if we join the CGM or sleep data, we would only get the data for those two dates. What we want is to have all the days included between the start and end date for each participant. The tidyr package has many wonderful functions that help tidy up data, including a function for this particular situation! The function is called complete() because it will fill in data where you want a sequence with the missing dates in that sequence. 
+
+Since we want to complete the data for each participant for each intervention, we will need to group the data. We could select each column to group by, but we could also use the pick() function we used before to select all the columns except for the date column.
+
+The complete() function is used like mutate() or summarise(). Unlike these other functions, you need to provide it with a column that exists, and you can’t create new columns. And you also need to provide it with the values that you want completed. In our case, we want each date from the start date to the end date, one for each day. We can use the seq() function to create a sequence of dates, from the min() to the max(). 
+
+<span style="color: blue;">{r pivot longer and complete}  
+participant_details |>  
+  pivot_longer(ends_with("date"), names_to = NULL, values_to = "date") |>  
+  group_by(pick(-date)) |>  
+  complete(  
+    date = seq(min(date), max(date), by = "1 day")  
+  )  </span>
+
+ <span style="color: blue;">{r make it a function}  
+ #' Convert the participant details data to long and clean it up.  
+ #'  
+ #' @param data The DIME participant details data.  
+ #'  
+ #' @returns A data frame.  
+ #'  
+ clean_participant_details <- function(data) {  
+   cleaned <- data |>  
+     tidyr::pivot_longer(  
+       tidyselect::ends_with("date"),  
+       names_to = NULL, values_to = "date"  
+     ) |>  
+     dplyr::group_by(dplyr::pick(-date)) |>  
+     tidyr::complete(  
+       date = seq(min(date), max(date), by = "1 day")  
+     )  
+   return(cleaned)  
+ }  </span>
