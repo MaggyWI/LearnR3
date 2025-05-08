@@ -452,7 +452,9 @@ sleep_data |>
 summarise_column(seconds, sum)</span> 
 
 
-# Pivot Longer
+# Pivot data
+
+## Pivot Longer
 
 With pivot_longer(), the first argument is the data itself. The other arguments are:  
 cols: The columns to use to convert to long form. The input is a vector made using c() that contains the column names, like you would use in select() (e.g. you can use the select_helpers like starts_with(), or - minus to exclude).  
@@ -497,3 +499,28 @@ participant_details |>
      )  
    return(cleaned)  
  }  </span>
+
+
+## Pivot Wider
+
+The arguments for pivot_wider() are very similar to those in pivot_longer(), except instead of names_to and values_to, they are called names_from and values_from. The first argument is the data and the other arguments are:  
+  id_cols: This is optional as it will default to all column names. This argument tells pivot_wider() to use the given columns as the identifiers for when converting. Unlike pivot_longer() which doesn’t require some type of “key” or “id” column to convert to long form, the conversion to wide form requires some type of “key” or “id” column because pivot_wider() needs to know which rows belong with each other.  
+  names_from: Similar to the pivot_longer(), this is the name of the column that has the values that will make up the new columns. Unlike with the names_to argument in pivot_longer() which takes a character string as input, the column name for names_from must be unquoted, because you are selecting a column that already exists in the dataset (unlike names_to which is the name of a column that you want to create but that doesn’t exist yet).  
+  values_from: Same as names_from, this is the column name (that exists and must be given unquoted) for the values that will be in the new columns.  
+
+<span style="color: blue;">{r try wider}  
+sleep_data |>  
+  pivot_wider(names_from = sleep_type, values_from = seconds_sum, names_prefix = "seconds_")</span>
+
+
+<span style="color: blue;">  {r create fucntion sleep_types_to_wider}
+ #' Pivot wider the sleep types
+ #'
+ #' @param data 
+ #'
+ #' @returns table resulting from pivot
+ #'
+ sleep_types_to_wider <- function(data) {
+   wider <- data |> tidyr::pivot_wider(names_from = sleep_type, values_from = seconds_sum,    names_prefix = "seconds_")
+   return(wider)
+ } </span>

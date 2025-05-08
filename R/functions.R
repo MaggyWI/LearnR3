@@ -94,6 +94,20 @@ summarise_column <- function(data, column, functions) {
 }
 
 
+
+#' Pivot wider the sleep types
+#'
+#' @param data
+#'
+#' @returns table resulting from pivot
+#'
+sleep_types_to_wider <- function(data) {
+  wider <- data |> tidyr::pivot_wider(names_from = sleep_type, values_from = seconds_sum, names_prefix = "seconds_")
+  return(wider)
+}
+
+
+
 #' Clean and prepare the CGM data for joining.
 #'
 #' @param data The CGM dataset.
@@ -119,8 +133,10 @@ clean_cgm <- function(data) {
 clean_sleep <- function(data) {
   cleaned <- data |>
     get_participant_id() |>
-    rename(datetime = date) |>
-    summarise_column(seconds, list(sum = sum))
+    dplyr::rename(datetime = date) |>
+    prepare_dates(datetime) |>
+    summarise_column(seconds, list(sum = sum)) |>
+    sleep_types_to_wider()
   return(cleaned)
 }
 
